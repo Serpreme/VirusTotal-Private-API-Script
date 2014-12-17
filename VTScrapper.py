@@ -4,31 +4,52 @@ import json
 import requests
 import sqlite3
 import sys, getopt
+"""
+Defining the command line arguements.
+"""
 parser = argparse.ArgumentParser(description=' This script is used for analyszing data from VT with the Private API.')
 parser.add_argument('-e','--engines', help='Specify your search critera')
 parser.add_argument('-t','--table',help='This will specify the tables to be made.')
 parser.add_argument('-a','--iteramount',help='This is how many hashes, in increments of 300 you want to go back.', type=int, required=True)
 parser.add_argument('-ip','--ipaddsearch',help='Use this if you want to search an IP for basic information')
 args = parser.parse_args()
+"""
+This section is used to setup insert statements based off the table name.
+"""
 tudp = '%sUDP' % args.table
 ttcp = '%sTCP' % args.table
 turl = '%sURL' % args.table
+"""
+This line determines how many increments of 300 you want to search for.
+"""
 ia = '%s' % args.iteramount
 ipsearch = 0
 ipsearch = '%s' % args.ipaddsearch
 totalcnter = '%s' % args.totalcnter
+"""
+Initializing counters.
+"""
 ia = int(ia)
 excerrorcnt = 0
 urlerrorcnt = 0
 tcperrorcnt = 0
 udperrorcnt = 0
 ipquerycnt = 0
+"""
+This line is used for filtering out traffic we are not concerned with.
+"""
 fil2 = ('10.', '172.16.', '172.31.', '192.168','255.255.','137.170.185.211','239.255.255.250','65.55.56.206','64.4.10.33','8.8.8.8','213.186.33.99')
+"""
+Initializing more variables.
+"""
 udpmainex = []
 tcpmainex = []
 urlex = []
 bighashlist = []
 offsetter = []
+"""
+Checks if you supplied an IP and will want to search for that instead of the standard search.
+"""
 if ttcp == 'NoneIP':
   print 'Must be doing something other then normal search'
 else:
@@ -37,6 +58,9 @@ else:
  hd = response.json()
  for z in hd['hashes']:
   bighashlist.append([z])
+"""
+This checks if you want more then 300 hashes processed.
+"""
  if ia >= 1:
   try:
    for x in range(ia):
