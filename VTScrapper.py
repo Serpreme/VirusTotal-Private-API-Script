@@ -59,7 +59,7 @@ else:
  for z in hd['hashes']:
   bighashlist.append([z])
 """
-This checks if you want more then 300 hashes processed.
+This checks if you want more then 300 hashes processed. It will send back the offset amount for additional hashes in increments of 300
 """
  if ia >= 1:
   try:
@@ -75,7 +75,9 @@ This checks if you want more then 300 hashes processed.
    print "No offset"
  else:
   print "iter amount was less then 1"
-
+"""
+Below starts requesting behaviour information for each hash in the list. 
+"""
  print "How many hashes were pulled:"
  print len(bighashlist)
  for [hashlistitem] in bighashlist:
@@ -83,12 +85,18 @@ This checks if you want more then 300 hashes processed.
   response = requests.get('https://www.virustotal.com/vtapi/v2/file/behaviour', params=params)
   jdata = response.json()
   try:
+"""
+This part pulls TCP information from the hashes
+"""
     tcpunique = []
     for block in jdata['network']['tcp']:
      if not [block['dst'], block['dport']] in tcpunique:
       tcpunique.append([block['dst'], block['dport']])
       tcpunique = [ip for ip in tcpunique if not ip[0].startswith(fil2)]
     tcpuniquelen = len(tcpunique)
+"""
+    This part does a length check before appending the valid entries to the main variable that will be used to insert into the database.
+"""
     if tcpuniquelen > 0:
      for x in tcpunique:
       x.insert(0,hashlistitem)
@@ -96,11 +104,17 @@ This checks if you want more then 300 hashes processed.
     else: 
      tcperrorcnt += 1
     udpunique = []
+"""
+   This part pulls UDP information from the hashes
+"""
     for block in jdata['network']['udp']:
      if not [block['dst'], block['dport']] in udpunique:
       udpunique.append([block['dst'], block['dport']])
       udpunique = [ip for ip in udpunique if not ip[0].startswith(fil2)]
     udpuniquelen = len(udpunique)
+"""
+    This part does a length check before appending the valid entries to the main variable that will be used to insert into the database.
+"""
     if udpuniquelen > 0:
      for x in udpunique:
       x.insert(0,hashlistitem)
@@ -108,10 +122,16 @@ This checks if you want more then 300 hashes processed.
     else: 
      udperrorcnt += 1
     urllist = []
+"""
+   This part pulls URL information from the hashes
+"""
     for block2 in jdata['network']['http']:
      if not [block2['uri']] in urllist:
       urllist.append([block2['uri']])
     urllen = len(urllist)
+"""
+    This part does a length check before appending the valid entries to the main variable that will be used to insert into the database.
+"""
     if urllen > 0:
      for x2 in urllist:
       x2.insert(0,hashlistitem)
